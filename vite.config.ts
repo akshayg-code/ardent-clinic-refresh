@@ -11,9 +11,9 @@ export default defineConfig(({ mode }) => ({
   // },
   plugins: [react(), mode === "development" && componentTagger()].filter(Boolean),
   base: "/ardent-clinic-refresh/",
-  // resolve: {
-  //   alias: {
-  //     "@": path.resolve(__dirname, "./src"),
-  //   },
-  // },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./src"),
+    },
+  },
 }));
