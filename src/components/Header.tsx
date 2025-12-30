@@ -1,11 +1,21 @@
 import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Phone, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
-const Header = () => {
+interface HeaderProps {
+  lightBackground?: boolean;
+}
+
+const Header = ({ lightBackground = false }: HeaderProps) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+
+  // Use dark text if scrolled OR if on a light background page
+  const useDarkText = isScrolled || lightBackground;
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,51 +26,59 @@ const Header = () => {
   }, []);
 
   const navLinks = [
-    { href: "#services", label: "Services" },
-    { href: "#about", label: "About Us" },
-    { href: "#conditions", label: "Conditions" },
+    { href: isHome ? "#services" : "/#services", label: "Services" },
+    { href: isHome ? "#about" : "/#about", label: "About Us" },
+    { href: isHome ? "#conditions" : "/#conditions", label: "Conditions" },
     { href: "/patient-resources", label: "Resources" },
-    { href: "#contact", label: "Contact" },
+    { href: isHome ? "#contact" : "/#contact", label: "Contact" },
   ];
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-card/95 backdrop-blur-md shadow-elevated"
-          : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled || lightBackground
+        ? "bg-card/95 backdrop-blur-md shadow-elevated"
+        : "bg-transparent"
+        }`}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-2">
-            <span className={`font-heading text-2xl font-bold transition-colors ${
-              isScrolled ? "text-primary" : "text-primary-foreground"
-            }`}>
+          <Link to="/" className="flex items-center gap-2">
+            <span className={`font-heading text-2xl font-bold transition-colors ${useDarkText ? "text-primary" : "text-primary-foreground"
+              }`}>
               Ardent Clinic
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            {navLinks.map((link) => (
-              <a
-                key={link.href}
-                href={link.href}
-                className={`font-body text-sm font-medium transition-colors hover:text-accent ${
-                  isScrolled ? "text-foreground" : "text-primary-foreground/90"
-                }`}
-              >
-                {link.label}
-              </a>
-            ))}
+            {navLinks.map((link) =>
+              link.href.startsWith("/") ? (
+                <Link
+                  key={link.href}
+                  to={link.href}
+                  className={`font-body text-sm font-medium transition-colors hover:text-accent ${useDarkText ? "text-foreground" : "text-primary-foreground/90"
+                    }`}
+                >
+                  {link.label}
+                </Link>
+              ) : (
+                <a
+                  key={link.href}
+                  href={link.href}
+                  className={`font-body text-sm font-medium transition-colors hover:text-accent ${useDarkText ? "text-foreground" : "text-primary-foreground/90"
+                    }`}
+                >
+                  {link.label}
+                </a>
+              )
+            )}
           </nav>
 
           {/* CTA Button */}
           <div className="hidden md:flex items-center gap-4">
             <Button
-              variant={isScrolled ? "default" : "hero"}
+              variant={useDarkText ? "default" : "hero"}
               size="lg"
               asChild
             >
@@ -78,9 +96,9 @@ const Header = () => {
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? (
-              <X className={`w-6 h-6 ${isScrolled ? "text-foreground" : "text-primary-foreground"}`} />
+              <X className={`w-6 h-6 ${useDarkText ? "text-foreground" : "text-primary-foreground"}`} />
             ) : (
-              <Menu className={`w-6 h-6 ${isScrolled ? "text-foreground" : "text-primary-foreground"}`} />
+              <Menu className={`w-6 h-6 ${useDarkText ? "text-foreground" : "text-primary-foreground"}`} />
             )}
           </button>
         </div>
@@ -96,16 +114,27 @@ const Header = () => {
             className="md:hidden bg-card border-t border-border"
           >
             <nav className="container mx-auto px-4 py-4 flex flex-col gap-4">
-              {navLinks.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  className="text-foreground font-medium py-2"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                >
-                  {link.label}
-                </a>
-              ))}
+              {navLinks.map((link) =>
+                link.href.startsWith("/") ? (
+                  <Link
+                    key={link.href}
+                    to={link.href}
+                    className="text-foreground font-medium py-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </Link>
+                ) : (
+                  <a
+                    key={link.href}
+                    href={link.href}
+                    className="text-foreground font-medium py-2"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    {link.label}
+                  </a>
+                )
+              )}
               <Button variant="default" size="lg" asChild>
                 <a href="tel:+2813324848">
                   <Phone className="w-4 h-4" />

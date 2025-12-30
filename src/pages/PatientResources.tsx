@@ -50,13 +50,13 @@ const PatientResources = () => {
     <>
       <Helmet>
         <title>Patient Resources | Neurological Education | Ardent Clinic LLC</title>
-        <meta 
-          name="description" 
-          content="Educational resources about neurological conditions. Learn about ALS, Alzheimer's, Parkinson's, stroke, epilepsy, migraines, and more from trusted medical sources." 
+        <meta
+          name="description"
+          content="Educational resources about neurological conditions. Learn about ALS, Alzheimer's, Parkinson's, stroke, epilepsy, migraines, and more from trusted medical sources."
         />
-        <meta 
-          name="keywords" 
-          content="neurological conditions, patient education, ALS, Alzheimer's, Parkinson's, stroke, epilepsy, migraine, neurology resources" 
+        <meta
+          name="keywords"
+          content="neurological conditions, patient education, ALS, Alzheimer's, Parkinson's, stroke, epilepsy, migraine, neurology resources"
         />
         <link rel="canonical" href="https://ardentclinicllc.com/patient-resources" />
         <script type="application/ld+json">
@@ -65,8 +65,8 @@ const PatientResources = () => {
       </Helmet>
 
       <div className="min-h-screen bg-background">
-        <Header />
-        
+        <Header lightBackground />
+
         <main className="pt-20">
           {/* Hero Section */}
           <section className="bg-gradient-to-br from-primary/10 via-background to-accent/5 py-16 md:py-24">
@@ -85,7 +85,7 @@ const PatientResources = () => {
                   Patient Resources
                 </h1>
                 <p className="text-lg text-muted-foreground">
-                  Explore trusted educational resources about various neurological conditions. 
+                  Explore trusted educational resources about various neurological conditions.
                   Click on any condition to learn more from reputable medical organizations.
                 </p>
               </motion.div>
@@ -133,8 +133,8 @@ const PatientResources = () => {
                 className="mt-12 p-6 bg-muted/50 rounded-xl border border-border"
               >
                 <p className="text-sm text-muted-foreground text-center">
-                  <strong>Disclaimer:</strong> The links provided are for educational purposes only. 
-                  These resources are maintained by external organizations. For personalized medical advice, 
+                  <strong>Disclaimer:</strong> The links provided are for educational purposes only.
+                  These resources are maintained by external organizations. For personalized medical advice,
                   please schedule an appointment with our clinic.
                 </p>
               </motion.div>
