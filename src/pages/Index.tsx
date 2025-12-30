@@ -92,10 +92,10 @@ const Index = () => {
         <main>
           <Hero />
           <Services />
+          <Conditions />
           <About />
           <Doctor />
           <FacilityTour />
-          <Conditions />
           <Contact />
         </main>
         <Footer />
