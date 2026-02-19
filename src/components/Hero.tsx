@@ -12,7 +12,6 @@ function useCountUp(target: number, duration: number = 2000) {
     const update = (now: number) => {
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
-      // ease-out
       const eased = 1 - Math.pow(1 - progress, 3);
       setCount(Math.round(eased * target));
       if (progress < 1) requestAnimationFrame(update);
@@ -22,7 +21,7 @@ function useCountUp(target: number, duration: number = 2000) {
   return count;
 }
 
-// Floating orb component
+// Floating orb — GPU-composited (transform + opacity only, no blur animation)
 const FloatingOrb = ({
   size,
   top,
@@ -44,32 +43,25 @@ const FloatingOrb = ({
       top,
       left,
       background:
-        "radial-gradient(circle, hsl(175 60% 50% / 0.18) 0%, transparent 70%)",
-      filter: "blur(40px)",
+        "radial-gradient(circle, hsl(175 60% 50% / 0.15) 0%, transparent 70%)",
+      filter: "blur(48px)",
+      willChange: "transform, opacity",
     }}
-    animate={{ y: [0, -30, 0], opacity: [0.6, 1, 0.6] }}
-    transition={{
-      duration,
-      delay,
-      repeat: Infinity,
-      ease: "easeInOut",
-    }}
+    animate={{ y: [0, -28, 0], opacity: [0.5, 0.9, 0.5] }}
+    transition={{ duration, delay, repeat: Infinity, ease: "easeInOut" }}
   />
 );
 
-// Word-by-word title animation variants
+// Word-by-word title variants
 const titleContainer = {
   hidden: {},
   visible: {
-    transition: {
-      staggerChildren: 0.08,
-      delayChildren: 0.15,
-    },
+    transition: { staggerChildren: 0.09, delayChildren: 0.15 },
   },
 };
 
 const wordVariant = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 22 },
   visible: {
     opacity: 1,
     y: 0,
@@ -77,15 +69,17 @@ const wordVariant = {
   },
 };
 
-// Trust indicator item
+// Trust count-up item
 const TrustItem = ({
   value,
   suffix,
-  label,
+  line1,
+  line2,
 }: {
   value: number;
   suffix: string;
-  label: string;
+  line1: string;
+  line2: string;
 }) => {
   const count = useCountUp(value, 2200);
   return (
@@ -97,12 +91,9 @@ const TrustItem = ({
         </span>
       </div>
       <span className="text-primary-foreground/80 font-body text-sm">
-        {label.split("<br />").map((line, i) => (
-          <span key={i}>
-            {line}
-            {i === 0 && <br />}
-          </span>
-        ))}
+        {line1}
+        <br />
+        {line2}
       </span>
     </div>
   );
@@ -110,13 +101,13 @@ const TrustItem = ({
 
 const Hero = () => {
   const sectionRef = useRef<HTMLElement>(null);
+
+  // Parallax — only transform, GPU-accelerated
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start start", "end start"],
   });
-
-  // Parallax: image drifts up at half scroll speed
-  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+  const bgY = useTransform(scrollYProgress, [0, 1], ["0%", "35%"]);
 
   const line1Words = ["Expert", "Neurological", "Care"];
   const line2Words = ["&", "Pain", "Management"];
@@ -126,36 +117,41 @@ const Hero = () => {
       ref={sectionRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
     >
-      {/* Parallax Background Image */}
+      {/* Parallax Background — transform only for compositing */}
       <motion.div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-110"
+        className="absolute inset-0 scale-110 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `url(${heroBg})`,
           y: bgY,
+          willChange: "transform",
         }}
       />
 
-      {/* Animated Gradient Overlay */}
+      {/* Static base overlay */}
+      <div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(135deg, hsl(175 50% 30% / 0.95), hsl(200 40% 25% / 0.90))",
+        }}
+      />
+
+      {/* Breathing overlay — opacity only (no background paint) */}
       <motion.div
         className="absolute inset-0"
-        animate={{
-          background: [
-            "linear-gradient(135deg, hsl(175 50% 30% / 0.95), hsl(200 40% 25% / 0.90))",
-            "linear-gradient(160deg, hsl(175 55% 28% / 0.97), hsl(195 45% 22% / 0.92))",
-            "linear-gradient(135deg, hsl(175 50% 30% / 0.95), hsl(200 40% 25% / 0.90))",
-          ],
+        style={{
+          background:
+            "linear-gradient(160deg, hsl(175 55% 28% / 1), hsl(195 45% 22% / 1))",
+          willChange: "opacity",
         }}
-        transition={{
-          duration: 6,
-          repeat: Infinity,
-          ease: "easeInOut",
-        }}
+        animate={{ opacity: [0, 0.25, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Floating Decorative Orbs */}
-      <FloatingOrb size={420} top="10%" left="60%" delay={0} duration={7} />
-      <FloatingOrb size={280} top="55%" left="75%" delay={1.5} duration={9} />
-      <FloatingOrb size={200} top="20%" left="5%" delay={0.8} duration={8} />
+      {/* Floating Orbs */}
+      <FloatingOrb size={420} top="8%"  left="58%" delay={0}   duration={7} />
+      <FloatingOrb size={280} top="52%" left="74%" delay={1.5} duration={9} />
+      <FloatingOrb size={200} top="18%" left="4%"  delay={0.8} duration={8} />
 
       {/* Content */}
       <div className="relative z-10 container mx-auto px-4 py-32">
@@ -169,14 +165,13 @@ const Hero = () => {
             Welcome to Ardent Clinic LLC
           </motion.p>
 
-          {/* Word-by-word heading reveal */}
+          {/* Word-by-word heading */}
           <motion.h1
             className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight mb-6"
             variants={titleContainer}
             initial="hidden"
             animate="visible"
           >
-            {/* Line 1 */}
             <span className="flex flex-wrap gap-x-3">
               {line1Words.map((word) => (
                 <motion.span key={word} variants={wordVariant}>
@@ -184,7 +179,6 @@ const Hero = () => {
                 </motion.span>
               ))}
             </span>
-            {/* Line 2 */}
             <span className="flex flex-wrap gap-x-3 mt-2 text-accent">
               {line2Words.map((word) => (
                 <motion.span key={word} variants={wordVariant}>
@@ -232,9 +226,9 @@ const Hero = () => {
             transition={{ duration: 0.6, delay: 1.2 }}
             className="mt-12 flex flex-wrap gap-8"
           >
-            <TrustItem value={15} suffix="+" label="Years of<br />Experience" />
-            <TrustItem value={5000} suffix="+" label="Patients<br />Treated" />
-            <TrustItem value={98} suffix="%" label="Patient<br />Satisfaction" />
+            <TrustItem value={15}   suffix="+" line1="Years of"  line2="Experience" />
+            <TrustItem value={5000} suffix="+" line1="Patients"  line2="Treated" />
+            <TrustItem value={98}   suffix="%" line1="Patient"   line2="Satisfaction" />
           </motion.div>
         </div>
       </div>
